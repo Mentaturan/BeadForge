@@ -1,0 +1,31 @@
+{
+  "version": "2.0",
+  "type": "perler_bead_pattern",
+  "created": "2026-04-25T10:00:00.000Z",
+  "width": 16,
+  "height": 16,
+  "grid": [
+    [null, null, null, null, "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", null, null, null, null],
+    [null, null, null, "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", null, null, null],
+    [null, null, "P18", "P18", "P05", "P05", "P05", "P18", "P18", "P05", "P05", "P05", "P18", "P18", null, null],
+    [null, "P18", "P18", "P05", "P01", "P01", "P05", "P18", "P18", "P05", "P01", "P01", "P05", "P18", "P18", null],
+    [null, "P18", "P18", "P05", "P01", "P01", "P05", "P18", "P18", "P05", "P01", "P01", "P05", "P18", "P18", null],
+    [null, "P18", "P18", "P05", "P05", "P05", "P18", "P18", "P18", "P18", "P05", "P05", "P05", "P18", "P18", null],
+    [null, "P18", "P18", "P18", "P18", "P18", "P03", "P03", "P03", "P03", "P18", "P18", "P18", "P18", "P18", null],
+    [null, "P18", "P18", "P18", "P18", "P03", "P03", "P03", "P03", "P03", "P03", "P18", "P18", "P18", "P18", null],
+    [null, "P18", "P18", "P18", "P03", "P03", "P03", "P03", "P03", "P03", "P03", "P03", "P18", "P18", "P18", null],
+    [null, "P18", "P18", "P03", "P03", "P03", "P03", "P03", "P03", "P03", "P03", "P03", "P03", "P18", "P18", null],
+    [null, "P18", "P18", "P18", "P03", "P03", "P03", "P03", "P03", "P03", "P03", "P03", "P18", "P18", "P18", null],
+    [null, "P18", "P18", "P18", "P18", "P03", "P03", "P03", "P03", "P03", "P03", "P18", "P18", "P18", "P18", null],
+    [null, "P18", "P18", "P18", "P18", "P18", "P03", "P03", "P03", "P03", "P18", "P18", "P18", "P18", "P18", null],
+    [null, null, "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", null, null],
+    [null, null, null, "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", null, null, null],
+    [null, null, null, null, "P18", "P18", "P18", "P18", "P18", "P18", "P18", "P18", null, null, null, null]
+  ],
+  "palette": [
+    {"id": "P18", "hex": "#2E2F31", "name": "Black", "nameCN": "黑色", "brand": "perler"},
+    {"id": "P05", "hex": "#B0353C", "name": "Red", "nameCN": "红色", "brand": "perler"},
+    {"id": "P01", "hex": "#F1F1F1", "name": "White", "nameCN": "白色", "brand": "perler"},
+    {"id": "P03", "hex": "#E7CE3E", "name": "Yellow", "nameCN": "黄色", "brand": "perler"}
+  ]
+}
