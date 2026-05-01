@@ -60,3 +60,32 @@ Test execution complete. Exit code: 0
 >>> 阶段6: 提交或回滚
 -----------------------------------
 测试通过，准备提交...
+Author identity unknown
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'root@all-in-one-28-vci-4l289.(none)')
+提交完成: 863f42a
+推送到远程 main 分支...
+
+>>> 阶段7: 生成报告
+-----------------------------------
+
+报告生成完成
+HTML报告: /workspace/automation_log/report_20260501_230047.html
+
+=========================================
+迭代完成
+时间: Fri May  1 23:00:47 UTC 2026
+=========================================
+
+所有日志文件已保存到: /workspace/automation_log
+主日志: /workspace/automation_log/iteration_20260501_230043.log
