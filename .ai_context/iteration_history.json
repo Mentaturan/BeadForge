@@ -1,0 +1,11 @@
+{
+  "iterations": [],
+  "last_backup_sha": "",
+  "current_version": "1.0.0",
+  "stats": {
+    "total_iterations": 0,
+    "successful_improvements": 0,
+    "failed_attempts": 0,
+    "total_rollback": 0
+  }
+}

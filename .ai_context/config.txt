@@ -1,0 +1,9 @@
+
+BeadForge AI Iteration Configuration
+=====================================
+Project: BeadForge
+Created: Fri May  1 15:00:59 UTC 2026
+Max Retries: 3
+Max Changes Per Iteration: 500
+Lock Timeout: 3600
+
