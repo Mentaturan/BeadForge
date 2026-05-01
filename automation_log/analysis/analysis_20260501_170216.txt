@@ -1,0 +1,53 @@
+=== BeadForge Code Analysis Report ===
+Generated: Fri May  1 17:02:16 UTC 2026
+
+File Statistics:
+1908 /workspace/BeadForge.html
+157462 /workspace/BeadForge.html
+
+HTML Structure Analysis:
+1
+1
+1
+1
+1
+
+CSS Variables:
+      2 --primary:
+      2 --primary-rgb:
+      2 --primary-hover:
+      1 --warning:
+      1 --text-sub:
+      1 --text-main:
+      1 --success:
+      1 --shadow-sm:
+      1 --shadow-md:
+      1 --shadow-lg:
+      1 --radius:
+      1 --radius-sm:
+      1 --radius-pill:
+      1 --radius-lg:
+      1 --glass-border:
+      1 --glass-border-light:
+      1 --glass-blur:
+      1 --glass-bg:
+      1 --glass-bg-hover:
+      1 --font-family:
+      1 --danger:
+      1 --accent:
+
+JavaScript Functions:
+function ciede2000
+function colorDistanceCIEDE
+function findNearestColorCIEDE
+function getColorLab
+function rgbToLab
+
+Potential Issues:
+No console.log found
+No debugger found
+
+Code Quality Metrics:
+Script tags: 1
+Style tags: 1
+
