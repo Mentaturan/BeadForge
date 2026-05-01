@@ -1052,6 +1052,18 @@
     const COLOR_MAP = {};
     PERLER_COLORS.forEach(c => COLOR_MAP[c.id] = c);
 
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
     const COLOR_FAMILIES = [
         {id:'all',name:'全部',dot:'#94a3b8'},
         {id:'red',name:'红',dot:'#ef4444'},
@@ -1894,7 +1906,7 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
             document.getElementById('doExportCSVBtn').onclick=()=>{this.exportCSV();this.closeModal('printModal');};
             document.getElementById('doPrintBtn').onclick=()=>this.printPattern();
 
-            document.getElementById('colorSearch').oninput=()=>this.renderColorPalette();
+            document.getElementById('colorSearch').oninput=debounce(()=>this.renderColorPalette(),150);
             document.querySelectorAll('.brand-tab').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.brand-tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');this.activeBrand=b.dataset.brand;this.renderColorPalette();};});
 
             window.addEventListener('resize',()=>{clearTimeout(this._rt);this._rt=setTimeout(()=>{this.resizeCanvas();this.centerCanvas();},200);});
