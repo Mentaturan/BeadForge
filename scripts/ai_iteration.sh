@@ -35,6 +35,14 @@ echo "时间: $(date)"
 echo "========================================="
 
 echo ""
+echo ">>> 阶段0: 分支清理与同步"
+echo "-----------------------------------"
+./scripts/branch_cleanup.sh
+BRANCH_CLEANUP_RESULT=$?
+echo "分支清理完成，退出码: $BRANCH_CLEANUP_RESULT"
+echo ""
+
+echo ""
 echo ">>> 阶段1: 准备阶段 - 创建备份"
 echo "-----------------------------------"
 
@@ -115,6 +123,9 @@ if [ $TEST_RESULT -eq 0 ] && [ $IMPROVEMENT_SUCCESS -eq 1 ]; then
     git commit -m "AI iteration: $IMPROVEMENT_SUMMARY - $TIMESTAMP"
     
     echo "提交完成: $(git rev-parse --short HEAD)"
+    
+    echo "推送到远程 main 分支..."
+    git push origin main -f 2>/dev/null || git push origin main
 else
     echo "测试失败或未进行改进，执行回滚..."
     ./scripts/backup_rollback.sh rollback
