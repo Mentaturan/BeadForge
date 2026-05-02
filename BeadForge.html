@@ -1201,6 +1201,7 @@
         }
 
         init(){
+            this._debounceTimers={};
             this.initGrid();
             this.renderFamilyTabs();
             this.renderColorPalette();
@@ -1876,7 +1877,7 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
 
             document.getElementById('llmGenerateBtn').onclick=()=>{this.openModal('llmModal');document.getElementById('tplWidth').value=this.width;document.getElementById('tplHeight').value=this.height;this.updatePromptPreview();};
             document.querySelectorAll('.tab-btn').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');if(b.dataset.tab==='llmPreview')this.updatePromptPreview();};});
-            ['tplWidth','tplHeight','tplMaxColors'].forEach(id=>{document.getElementById(id).oninput=()=>this.updatePromptPreview();});
+            ['tplWidth','tplHeight','tplMaxColors'].forEach(id=>{document.getElementById(id).oninput=()=>{clearTimeout(this._debounceTimers[id]);this._debounceTimers[id]=setTimeout(()=>this.updatePromptPreview(),200);};});
             document.getElementById('llmPrompt').oninput=()=>this.updatePromptPreview();
             document.getElementById('llmSubmitBtn').onclick=()=>{const p=document.getElementById('llmPrompt').value;if(!p){this.showToast('请输入描述','warning');return;}this.closeModal('llmModal');const g=this.mockPattern(p);this.saveState();this.grid=g;const h=g.length,w=g[0]?.length||this.width;if(h!==this.height||w!==this.width){this.height=h;this.width=w;this.updateSizeInputs();}this.markGridDirty();this.updateStats();this.showToast('已生成示例图案，可在任何LLM工具中使用预览中的提示词生成JSON','info');};
             document.getElementById('llmManualBtn').onclick=()=>{const raw=document.getElementById('llmManualInput').value.trim();if(!raw){this.showToast('请粘贴LLM生成的内容','warning');return;}try{const g=this.parseLLMOutput(raw);this.saveState();this.grid=g;const h=g.length,w=g[0]?.length||this.width;if(h!==this.height||w!==this.width){this.height=h;this.width=w;this.updateSizeInputs();}this.markGridDirty();this.updateStats();this.closeModal('llmModal');this.showToast('导入成功','success');}catch(e){this.showToast('解析失败: '+e.message,'error');}};
@@ -1885,7 +1886,7 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
             document.getElementById('imageUploadArea').onclick=()=>document.getElementById('imageFileInput').click();
             document.getElementById('imageFileInput').onchange=e=>{const f=e.target.files[0];if(f)this.previewImage(f);};
             const ua=document.getElementById('imageUploadArea');ua.addEventListener('dragover',e=>{e.preventDefault();ua.style.borderColor='var(--accent)';});ua.addEventListener('dragleave',()=>ua.style.borderColor='');ua.addEventListener('drop',e=>{e.preventDefault();ua.style.borderColor='';const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))this.previewImage(f);});
-            document.getElementById('colorLimitRange').oninput=e=>document.getElementById('colorLimitValue').textContent=e.target.value;
+            document.getElementById('colorLimitRange').oninput=e=>{clearTimeout(this._debounceTimers.colorLimit);this._debounceTimers.colorLimit=setTimeout(()=>{document.getElementById('colorLimitValue').textContent=e.target.value;},100);};
             document.getElementById('imageConvertSubmitBtn').onclick=async()=>{const f=document.getElementById('imageFileInput').files[0];if(!f){this.showToast('请上传图片','warning');return;}const useDithering=document.getElementById('useDithering').checked;const removeBg=document.getElementById('removeBackground').checked;this.closeModal('imageModal');this.showToast('转换中...');const g=await this.convertImageToPattern(f,useDithering,removeBg);this.saveState();this.grid=g;this.markGridDirty();this.updateStats();this.showToast('转换完成','success');};
 
             document.getElementById('printExportBtn').onclick=()=>{this.openModal('printModal');setTimeout(()=>this.updateExportPreview(),100);};
@@ -1895,7 +1896,7 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
             document.getElementById('doExportCSVBtn').onclick=()=>{this.exportCSV();this.closeModal('printModal');};
             document.getElementById('doPrintBtn').onclick=()=>this.printPattern();
 
-            document.getElementById('colorSearch').oninput=()=>this.renderColorPalette();
+            document.getElementById('colorSearch').oninput=()=>{clearTimeout(this._debounceTimers.colorSearch);this._debounceTimers.colorSearch=setTimeout(()=>this.renderColorPalette(),150);};
             document.querySelectorAll('.brand-tab').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.brand-tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');this.activeBrand=b.dataset.brand;this.renderColorPalette();};});
 
             window.addEventListener('resize',()=>{clearTimeout(this._rt);this._rt=setTimeout(()=>{this.resizeCanvas();this.centerCanvas();},200);});
