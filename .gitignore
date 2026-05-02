@@ -1,0 +1,6 @@
+# Automation logs
+automation_log/
+
+# Temporary files
+*.tmp
+.DS_Store
