@@ -452,6 +452,7 @@
         </div>
         <div class="header-actions">
             <button class="btn btn-secondary" id="undoBtn" title="撤销 Ctrl+Z"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg><span class="btn-label">撤销</span></button>
+            <button class="btn btn-secondary" id="redoBtn" title="重做 Ctrl+Y"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg><span class="btn-label">重做</span></button>
             <button class="btn btn-secondary" id="saveBtn" title="保存到本地 Ctrl+S"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span class="btn-label">保存</span></button>
             <button class="btn btn-secondary" id="importBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span class="btn-label">导入</span></button>
             <button class="btn btn-secondary" id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span class="btn-label">导出</span></button>
@@ -1195,6 +1196,7 @@
             this.isDrawing=false;this.activeTool='draw';
             this.currentColor=PERLER_COLORS.find(c=>c.id==='P18');
             this.history=new HistoryManager();
+            this.redoStack=[];
             this.beadMode=false;this.cellSize=20;
             this.zoom=1;this.panX=0;this.panY=0;
             this.isPanning=false;this.panStartX=0;this.panStartY=0;this.lastPanX=0;this.lastPanY=0;
@@ -1568,7 +1570,8 @@
         renderSizePresets(){const container=document.getElementById('sizePresets');if(!container)return;container.innerHTML='';CANVAS_PRESETS.forEach(p=>{const btn=document.createElement('button');btn.className='btn btn-secondary size-preset-btn';btn.textContent=p.label;btn.title=p.desc;btn.onclick=()=>this.applyPreset(p.w,p.h);container.appendChild(btn);});}
         applyPreset(w,h){this.saveState();const ng=[];for(let y=0;y<h;y++){const row=[];for(let x=0;x<w;x++){if(y<this.height&&x<this.width)row.push(this.grid[y][x]);else row.push(null);}ng.push(row);}this.width=w;this.height=h;this.grid=ng;this.updateSizeInputs();this.markGridDirty();this.updateStats();this.centerCanvas();this.showToast(`已应用 ${w}×${h}`);}
         saveState(){this.history.push({width:this.width,height:this.height,grid:this.grid});}
-        undo(){if(!this.history.isEmpty()){const s=this.history.pop();this.width=s.width;this.height=s.height;this.grid=s.grid;this.updateSizeInputs();this.markGridDirty();this.updateStats();this.showToast('已撤销');}else this.showToast('无历史','warning');}
+        undo(){if(!this.history.isEmpty()){this.redoStack.push({width:this.width,height:this.height,grid:this.grid});const s=this.history.pop();this.width=s.width;this.height=s.height;this.grid=s.grid;this.updateSizeInputs();this.markGridDirty();this.updateStats();this.showToast('已撤销');}else this.showToast('无历史','warning');}
+        redo(){if(this.redoStack.length>0){this.history.push({width:this.width,height:this.height,grid:this.grid});const s=this.redoStack.pop();this.width=s.width;this.height=s.height;this.grid=s.grid;this.updateSizeInputs();this.markGridDirty();this.updateStats();this.showToast('已重做');}else this.showToast('无重做历史','warning');}
         clear(){this.saveState();this.initGrid();this.markGridDirty();this.updateStats();this.autoSave();this.showToast('已清空');}
 
         applyPattern(type){this.selectedPattern=type;document.querySelectorAll('.pattern-btn').forEach(b=>b.classList.remove('active'));document.getElementById('pattern'+type.charAt(0).toUpperCase()+type.slice(1)+'Btn')?.classList.add('active');document.getElementById('patternOptions').style.display='block';this.showToast('选择 '+type+' 图案');}
@@ -1836,6 +1839,8 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
 
             document.addEventListener('keydown',e=>{
                 if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();this.undo();}
+                if((e.ctrlKey||e.metaKey)&&e.key==='y'){e.preventDefault();this.redo();}
+                if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key==='z'){e.preventDefault();this.redo();}
                 if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();this.saveState();this.autoSave();this.showToast('已保存','success');}
                 if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
                 if(e.key.toLowerCase()==='b')this.setTool('draw');if(e.key.toLowerCase()==='e')this.setTool('erase');
@@ -1873,6 +1878,7 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
             document.getElementById('toolFill').onclick=()=>this.setTool('fill');
             document.getElementById('toolPicker').onclick=()=>this.setTool('picker');
             document.getElementById('undoBtn').onclick=()=>this.undo();
+            document.getElementById('redoBtn').onclick=()=>this.redo();
             document.getElementById('saveBtn').onclick=()=>{this.saveState();this.autoSave();this.showToast('已保存','success');};
             document.getElementById('clearBtn').onclick=()=>{if(confirm('清空画布？'))this.clear();};
             document.getElementById('rotateLeftBtn').onclick=()=>this.rotate('left');
