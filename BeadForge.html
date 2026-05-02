@@ -505,6 +505,21 @@
                 </div>
             </div>
             <div class="panel-section">
+                <h3>快速图案</h3>
+                <div class="pattern-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+                    <button class="btn btn-secondary pattern-btn" id="patternChecker" title="棋盘格" style="padding:10px;font-size:1.2rem">▦</button>
+                    <button class="btn btn-secondary pattern-btn" id="patternStripesH" title="横条纹" style="padding:10px;font-size:1.2rem">≡</button>
+                    <button class="btn btn-secondary pattern-btn" id="patternStripesV" title="竖条纹" style="padding:10px;font-size:1.2rem">∥</button>
+                    <button class="btn btn-secondary pattern-btn" id="patternCircle" title="同心圆" style="padding:10px;font-size:1.2rem">◎</button>
+                    <button class="btn btn-secondary pattern-btn" id="patternGradient" title="渐变" style="padding:10px;font-size:1.2rem">▷</button>
+                    <button class="btn btn-secondary pattern-btn" id="patternDiagonal" title="对角线" style="padding:10px;font-size:1.2rem">╱</button>
+                </div>
+                <div class="pattern-options" id="patternOptions" style="display:none">
+                    <div class="setting-row"><span class="setting-label" style="font-size:0.8rem">间隔</span><input type="number" class="setting-input" id="patternInterval" value="2" min="1" max="10" style="width:60px;font-size:0.8rem"></div>
+                    <button class="btn btn-primary" id="applyPatternBtn" style="width:100%;margin-top:8px;font-size:0.8rem">应用图案</button>
+                </div>
+            </div>
+            <div class="panel-section">
                 <h3>画布设置</h3>
                 <div class="size-presets" id="sizePresets"></div>
                 <div class="setting-row"><span class="setting-label">宽度</span><input type="number" class="setting-input" id="widthInput" value="29" min="5" max="200"></div>
@@ -1185,7 +1200,7 @@
             this.isPanning=false;this.panStartX=0;this.panStartY=0;this.lastPanX=0;this.lastPanY=0;
             this.selectedTemplate=null;this.exportMode='image';this.activeBrand='perler';this.activeFamily='all';
             this.highlightedColor=null;this.symmetryMode='none';this.excludedColors=new Set();
-            this.previewImportData=null;
+            this.previewImportData=null;this.selectedPattern=null;
             this._autoSaveInterval=null;
             this.canvas=document.getElementById('mainCanvas');
             this.ctx=this.canvas.getContext('2d');
@@ -1556,6 +1571,10 @@
         undo(){if(!this.history.isEmpty()){const s=this.history.pop();this.width=s.width;this.height=s.height;this.grid=s.grid;this.updateSizeInputs();this.markGridDirty();this.updateStats();this.showToast('已撤销');}else this.showToast('无历史','warning');}
         clear(){this.saveState();this.initGrid();this.markGridDirty();this.updateStats();this.autoSave();this.showToast('已清空');}
 
+        applyPattern(type){this.selectedPattern=type;document.querySelectorAll('.pattern-btn').forEach(b=>b.classList.remove('active'));document.getElementById('pattern'+type.charAt(0).toUpperCase()+type.slice(1)+'Btn')?.classList.add('active');document.getElementById('patternOptions').style.display='block';this.showToast('选择 '+type+' 图案');}
+
+        doApplyPattern(){if(!this.selectedPattern)return;const interval=Math.max(1,Math.min(10,parseInt(document.getElementById('patternInterval').value)||2));this.saveState();const cx=Math.floor(this.width/2),cy=Math.floor(this.height/2);for(let y=0;y<this.height;y++)for(let x=0;x<this.width;x++){let fill=false;switch(this.selectedPattern){case'checker':fill=((x+y)/interval)%2<1;break;case'stripesH':fill=(y/interval)%2<1;break;case'stripesV':fill=(x/interval)%2<1;break;case'circle':{const d=Math.sqrt((x-cx)**2+(y-cy)**2);fill=(d/interval)%2<1;break;}case'gradient':{const d=Math.sqrt((x-cx)**2+(y-cy)**2);const maxD=Math.sqrt(cx**2+cy**2);fill=d<(maxD*(this.grid[y][x]?0:1)*(interval/10));break;}case'diagonal':fill=((x+y)/interval)%2<1;break;}this.grid[y][x]=fill?this.currentColor.id:null;}this.markGridDirty();this.updateStats();this.showToast('已应用 '+this.selectedPattern+' 图案');}
+
         exportJSON(){const d={version:'2.0',type:'perler_bead_pattern',created:new Date().toISOString(),width:this.width,height:this.height,note:'色值仅供参考，不同品牌/批次的实际颜色可能有偏差',palette:PERLER_COLORS.map(c=>({id:c.id,hex:c.hex,name:c.name,nameCN:c.nameCN,brand:c.brand})),grid:this.grid};
             const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`豆绘_${this.width}x${this.height}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);this.showToast('导出成功');}
 
@@ -1868,6 +1887,14 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
             document.getElementById('zoomResetBtn').onclick=()=>this.zoomReset();
 
             document.getElementById('resizeBtn').onclick=()=>{const w=parseInt(document.getElementById('widthInput').value),h=parseInt(document.getElementById('heightInput').value);if(w>=5&&w<=200&&h>=5&&h<=200)this.resize(w,h);else this.showToast('尺寸5-200','error');};
+            
+            document.getElementById('patternChecker').onclick=()=>this.applyPattern('checker');
+            document.getElementById('patternStripesH').onclick=()=>this.applyPattern('stripesH');
+            document.getElementById('patternStripesV').onclick=()=>this.applyPattern('stripesV');
+            document.getElementById('patternCircle').onclick=()=>this.applyPattern('circle');
+            document.getElementById('patternGradient').onclick=()=>this.applyPattern('gradient');
+            document.getElementById('patternDiagonal').onclick=()=>this.applyPattern('diagonal');
+            document.getElementById('applyPatternBtn').onclick=()=>this.doApplyPattern();
             document.getElementById('exportBtn').onclick=()=>this.exportJSON();
             document.getElementById('importBtn').onclick=()=>document.getElementById('fileInput').click();
             document.getElementById('fileInput').onchange=e=>{const f=e.target.files[0];if(!f)return;if(f.name.endsWith('.json'))this.importJSON(f);else if(f.type.startsWith('image/')){this.openModal('imageModal');this.previewImage(f);}e.target.value='';};
