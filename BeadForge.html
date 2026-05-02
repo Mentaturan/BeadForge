@@ -1496,6 +1496,9 @@
                 sw.className='color-swatch'+(color.id===this.currentColor.id?' active':'');
                 sw.style.backgroundColor=color.hex;
                 sw.setAttribute('data-brand',color.brand[0].toUpperCase());
+                sw.setAttribute('role','button');
+                sw.setAttribute('aria-label',`${color.id} ${color.nameCN} (${color.name})`);
+                sw.setAttribute('tabindex','0');
                 sw.title=`${color.id} ${color.nameCN} (${color.name})\n${color.hex} · ${color.family} · ${color.brand.toUpperCase()}`;
                 sw.onclick=()=>this.setCurrentColor(color);
                 palette.appendChild(sw);
