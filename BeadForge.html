@@ -1676,17 +1676,16 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
             const sl=document.getElementById('showColorLegend').checked;
             const fh=document.getElementById('flipHorizontal')?.checked??false;
             const fv=document.getElementById('flipVertical')?.checked??false;
-            // Create flipped grid copy if needed
             let grid=this.grid;
             if(fh||fv){
-                grid=Array(this.height).fill(null).map(()=>Array(this.width).fill(null));
-                for(let y=0;y<this.height;y++)for(let x=0;x<this.width;x++){
+                grid=Array.from({length:this.height},(_,y)=>Array.from({length:this.width},(_,x)=>{
                     let sx=x,sy=y;
                     if(fh)sx=this.width-1-x;
                     if(fv)sy=this.height-1-y;
-                    grid[sy][sx]=this.grid[y][x];
-                }
+                    return this.grid[sy][sx];
+                }));
             }
+            const{colors:colorCounts}=this.getColorCount();
             const lw=sl?200*scale:0;const cw=this.width*cs+lw;const ch=this.height*cs+(sl?40*scale:0);
             const cv=document.createElement('canvas');cv.width=cw;cv.height=ch;const ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.webkitImageSmoothingEnabled=false;ctx.fillStyle='#fff';ctx.fillRect(0,0,cw,ch);
             if(sb){ctx.fillStyle='#e8e8e8';ctx.fillRect(0,0,this.width*cs,this.height*cs);}
@@ -1714,9 +1713,9 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
                 }}
                 if(sg){ctx.strokeStyle='#d0d0d0';ctx.lineWidth=0.5*scale;ctx.strokeRect(px,py,cs,cs);}
                 if(sc&&cid){const c=COLOR_MAP[cid];if(c){const br=this.getColorBrightness(c.hex);ctx.fillStyle=br>128?'#333':'#fff';ctx.font=`bold ${Math.max(8*scale,cs*0.24)}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(cid,px+cs/2,py+cs/2);}}}
-            if(sl){const cc={};for(let y=0;y<this.height;y++)for(let x=0;x<this.width;x++){const id=grid[y][x];if(id)cc[id]=(cc[id]||0)+1;}
+            if(sl){
                 const lx=this.width*cs+16*scale;ctx.fillStyle='#1e293b';ctx.font=`bold ${14*scale}px sans-serif`;ctx.textAlign='left';ctx.fillText('颜色图例',lx,24*scale);let ly=44*scale;
-                for(const[id,n]of Object.entries(cc).sort((a,b)=>b[1]-a[1])){const c=COLOR_MAP[id];if(!c)continue;
+                for(const[id,n]of Object.entries(colorCounts).sort((a,b)=>b[1]-a[1])){const c=COLOR_MAP[id];if(!c)continue;
                     ctx.fillStyle=c.hex;ctx.beginPath();ctx.arc(lx+8*scale,ly-2*scale,8*scale,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(0,0,0,0.15)';ctx.lineWidth=0.5*scale;ctx.stroke();
                     ctx.fillStyle='#333';ctx.font=`${12*scale}px sans-serif`;ctx.fillText(`${id} ${c.nameCN} ×${n}`,lx+22*scale,ly+2*scale);ly+=24*scale;}}
             return cv;}
