@@ -1725,11 +1725,12 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
         exportImage(){const cv=this.renderExportCanvas();cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`豆绘_${this.width}x${this.height}.png`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);this.showToast('图片导出成功','success');this.closeModal('printModal');},'image/png');}
         printPattern(){const cv=this.renderExportCanvas();const du=cv.toDataURL('image/png');const pa=document.getElementById('printArea');pa.innerHTML='';pa.style.display='block';const img=document.createElement('img');img.src=du;img.style.maxWidth='100%';pa.appendChild(img);const st=document.createElement('style');st.textContent='@media print{body>*:not(#printArea){display:none!important}#printArea{display:block!important;position:static!important}#printArea img{max-width:100%;page-break-inside:avoid}}';pa.appendChild(st);setTimeout(()=>{window.print();setTimeout(()=>{pa.style.display='none';},500);},200);this.closeModal('printModal');}
 
-        updateStats(){let t=0;const cc={};for(let y=0;y<this.height;y++)for(let x=0;x<this.width;x++){const id=this.grid[y][x];if(id){t++;cc[id]=(cc[id]||0)+1;}}
-            const uc=Object.keys(cc).length;document.getElementById('statTotal').textContent=t;document.getElementById('statColors').textContent=uc;
+        getColorCount(){const cc={};let t=0;for(let y=0;y<this.height;y++)for(let x=0;x<this.width;x++){const id=this.grid[y][x];if(id){t++;cc[id]=(cc[id]||0)+1;}}return{total:t,colors:cc,uniqueCount:Object.keys(cc).length};}
+        updateStats(){const{total:t,colors:cc,uniqueCount:uc}=this.getColorCount();document.getElementById('statTotal').textContent=t;document.getElementById('statColors').textContent=uc;
             const price=parseFloat(document.getElementById('beadPrice')?.value||0.004);const cost=t*price;document.getElementById('statCost').textContent='¥'+cost.toFixed(2);
             document.getElementById('statCost').style.color='var(--accent)';
-            const l=document.getElementById('colorCountList');l.innerHTML='';Object.entries(cc).sort((a,b)=>b[1]-a[1]).forEach(([id,n])=>{const c=COLOR_MAP[id];if(!c)return;const it=document.createElement('div');it.className='color-count-item';const brightness=this.getColorBrightness(c.hex);const textColor=brightness>128?'#333':'#fff';it.innerHTML=`<div class="color-count-bead" style="background:${c.hex};color:${textColor};text-shadow:${brightness>128?'none':'0 1px 2px rgba(0,0,0,0.5)'}">${id}</div><span class="color-count-info">${c.nameCN} ×${n}</span>`;l.appendChild(it);});}
+            const l=document.getElementById('colorCountList');l.innerHTML='';const fragment=document.createDocumentFragment();
+            Object.entries(cc).sort((a,b)=>b[1]-a[1]).forEach(([id,n])=>{const c=COLOR_MAP[id];if(!c)return;const it=document.createElement('div');it.className='color-count-item';const brightness=this.getColorBrightness(c.hex);const textColor=brightness>128?'#333':'#fff';it.innerHTML=`<div class="color-count-bead" style="background:${c.hex};color:${textColor};text-shadow:${brightness>128?'none':'0 1px 2px rgba(0,0,0,0.5)'}">${id}</div><span class="color-count-info">${c.nameCN} ×${n}</span>`;fragment.appendChild(it);});l.appendChild(fragment);}
 
         showToast(m,t='info'){const c=document.getElementById('toastContainer');const ts=document.createElement('div');ts.className=`toast ${t}`;ts.textContent=m;c.appendChild(ts);setTimeout(()=>{ts.style.animation='slideIn 0.3s reverse forwards';setTimeout(()=>ts.remove(),300);},3000);}
         openModal(id){document.getElementById(id).classList.add('active');}
@@ -1790,8 +1791,7 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
         }
 
         exportCSV(){
-            const cc={};
-            for(let y=0;y<this.height;y++)for(let x=0;x<this.width;x++){const id=this.grid[y][x];if(id)cc[id]=(cc[id]||0)+1;}
+            const{colors:cc}=this.getColorCount();
             let csv='色号,颜色名,中文名,品牌,十六进制,数量\n';
             for(const[id,n]of Object.entries(cc).sort((a,b)=>b[1]-a[1])){
                 const c=COLOR_MAP[id];if(!c)continue;
