@@ -547,6 +547,7 @@
                     <div class="stat-card"><span class="stat-label">拼豆总数</span><span class="stat-value" id="statTotal">0</span></div>
                     <div class="stat-card"><span class="stat-label">颜色种类</span><span class="stat-value" id="statColors">0</span></div>
                     <div class="stat-card"><span class="stat-label">画布尺寸</span><span class="stat-value" id="statSize">29×29</span></div>
+                    <div class="stat-card"><span class="stat-label">光标位置</span><span class="stat-value" id="statCursor">-</span></div>
                     <div class="stat-card"><span class="stat-label">预估成本</span><span class="stat-value" id="statCost">¥0</span></div>
                 </div>
                 <div class="cost-settings" style="margin-top:10px;padding:10px;background:var(--bg-body);border-radius:var(--radius);border:1px solid var(--border)">
@@ -1853,6 +1854,7 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
                 if((e.ctrlKey||e.metaKey)&&e.key==='y'){e.preventDefault();this.redo();}
                 if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key==='z'){e.preventDefault();this.redo();}
                 if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();this.saveState();this.autoSave();this.showToast('已保存','success');}
+                if((e.ctrlKey||e.metaKey)&&e.key==='Delete'){e.preventDefault();if(confirm('确定要清空画布吗？')){this.clear();this.showToast('画布已清空','info');}}
                 if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
                 if(e.key.toLowerCase()==='b')this.setTool('draw');if(e.key.toLowerCase()==='e')this.setTool('erase');
                 if(e.key.toLowerCase()==='f')this.setTool('fill');if(e.key.toLowerCase()==='i')this.setTool('picker');
@@ -1870,7 +1872,7 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
 
             this.canvas.addEventListener('mousemove',e=>{
                 const{x,y}=this.screenToGrid(e.clientX,e.clientY);
-                this.hoverCell={hx:x,hy:y};this.markHoverDirty();
+                this.hoverCell={hx:x,hy:y};this.markHoverDirty();const cp=document.getElementById('statCursor');if(cp)cp.textContent=`${x},${y}`;
                 if(this.isDrawing&&!this.isPanning){
                     if(e.buttons===2)this.applyTool(x,y,this.activeTool==='draw'?'erase':'draw');
                     else this.applyTool(x,y,this.activeTool);
@@ -1878,7 +1880,7 @@ const canvas=document.getElementById('importPreviewCanvas');const ctx=canvas.get
                 if(this.isPanning)this.onPanMove(e.clientX,e.clientY);
             });
 
-            this.canvas.addEventListener('mouseleave',()=>{this.hoverCell=null;this.markHoverDirty();});
+            this.canvas.addEventListener('mouseleave',()=>{this.hoverCell=null;this.markHoverDirty();const cp=document.getElementById('statCursor');if(cp)cp.textContent='-';});
             this.canvas.addEventListener('wheel',e=>{e.preventDefault();const r=this.canvasArea.getBoundingClientRect();this.zoomTo(this.zoom*(e.deltaY<0?1.1:0.9),e.clientX-r.left,e.clientY-r.top);},{passive:false});
 
             this.canvasArea.addEventListener('mousedown',e=>{if(e.target===this.canvasArea){if(e.button===0||e.button===1)this.startPan(e.clientX,e.clientY);}});
